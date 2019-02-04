@@ -1,7 +1,8 @@
 <template lang="pug">
   #app
     pmheader
-    section.section
+    loader(v-show="this.isLoading")
+    section.section(v-show="!this.isLoading")
       nav.nav.has-shadow
         .container
           input.input.is-large(type="text" placeholder="Buscar canciones" v-model="searchQuery")
@@ -13,8 +14,9 @@
           small {{ seachMessage }}
 
       .container
-        .columns
-          .column(v-for="t in tracks") {{ t.name }}
+        .columns.is-multiline
+          .column.is-one-quarter(v-for="t in tracks")
+            pmtrack(:track="t")
     pmfooter
 </template>
 
@@ -23,13 +25,15 @@ import trackService from './services/track'
 import pmfooter from '@/components/layout/Footer'
 import pmheader from '@/components/layout/Header'
 import pmtrack from '@/components/Track'
+import loader from '@/components/shared/Loader'
 
 export default {
   name: 'app',
   data () {
     return {
       searchQuery: '',
-      tracks: []
+      tracks: [],
+      isLoading: false
     }
   },
   computed: {
@@ -40,8 +44,10 @@ export default {
   methods: {
     search(){
       console.log(this.searchQuery)
+      this.isLoading = true
       trackService.search(this.searchQuery)
         .then(res => {
+          this.isLoading = false
           this.tracks = res.tracks.items
         })
     }
@@ -49,12 +55,12 @@ export default {
   components: {
     pmfooter,
     pmheader,
-    pmtrack
+    pmtrack,
+    loader
   }
 }
 </script>
 
 <style lang="scss">
 @import "scss/main";
-
 </style>
